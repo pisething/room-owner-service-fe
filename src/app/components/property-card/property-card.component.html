@@ -1,0 +1,35 @@
+
+        <div class="property-card">
+        <div class="property-image">
+            <img src="assets/img/real-estate/property-exterior-1.webp" alt="Modern Family Home" class="img-fluid">
+            <div class="property-badges">
+            <span class="badge featured">Featured</span>
+            <span class="badge for-sale">For Sale</span>
+            </div>
+            <div class="property-overlay">
+            <button class="favorite-btn"><i class="bi bi-heart"></i></button>
+            <button class="gallery-btn" data-count="12"><i class="bi bi-images"></i></button>
+            </div>
+        </div>
+        <div class="property-content">
+            <div class="property-price">{{room.price}}</div>
+            <h4 class="property-title">{{room.name}}</h4>
+            <p class="property-location"><i class="bi bi-geo-alt"></i> {{room.location?.fullAddress}}</p>
+            <div class="property-features">
+            <span><i class="bi bi-house"></i> 4 Bed</span>
+            <span><i class="bi bi-water"></i> 3 Bath</span>
+            <span><i class="bi bi-arrows-angle-expand"></i> 2,400 sqft</span>
+            </div>
+            <div class="property-agent">
+            <img src="assets/img/real-estate/agent-1.webp" alt="Agent" class="agent-avatar">
+            <div class="agent-info">
+                <strong>Sarah Johnson</strong>
+                <div class="agent-contact">
+                <small><i class="bi bi-telephone"></i> +1 (555) 123-4567</small>
+                </div>
+            </div>
+            </div>
+            <a [routerLink]="['/properties', room.id]" class="btn btn-primary w-100">View Details</a>
+        </div>
+        </div>
+    

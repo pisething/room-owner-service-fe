@@ -1,0 +1,133 @@
+<div class="properties-sidebar" [formGroup]="form">
+    
+    <div class="filter-widget">
+    <h5 class="filter-title">Filter Properties</h5>
+
+    <div class="filter-section">
+        <label class="form-label">Property Type</label>
+        <select class="form-select">
+        <option>All Types</option>
+        <option>House</option>
+        <option>Apartment</option>
+        <option>Condo</option>
+        <option>Townhouse</option>
+        <option>Commercial</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <div class="row g-2">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">Province</label>
+                <select class="form-select" 
+                    formControlName = "provinceCode"
+                    #provinceSelect
+                    (change)="onProvinceChange(provinceSelect.value)" >
+                    <option value="">Province</option>
+                    @for(p of provinces; track p.code){
+                        <option [value]="p.code">{{p.nameEn}}</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">District</label>
+                <select class="form-select" formControlName = "districtCode"
+                    #districtSelect
+                    (change)="onDistrictChange(districtSelect.value)">
+                    <option value="">District</option>
+                    @for(d of districts; track d.code){
+                        <option [value]="d.code">{{d.nameEn}}</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">Commune</label>
+                <select class="form-select" formControlName = "communeCode"
+                    #communeSelect
+                    (change)="onCommuneChange(communeSelect.value)">
+                    <option value="">Commune</option>
+                    @for(c of communes; track c.code){
+                        <option [value]="c.code">{{c.nameEn}}</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">Village</label>
+                <select class="form-select" formControlName = "villageCode">
+                    <option value="">Village</option>
+                    @for(v of villages; track v.code){
+                        <option [value]="v.code">{{v.nameEn}}</option>
+                    }
+                </select>
+            </div>
+
+        </div>
+    </div>
+    
+
+    <div class="filter-section">
+        <label class="form-label">Price Range</label>
+        <div class="row g-2">
+        <div class="col-6">
+            <input type="number" class="form-control" formControlName="priceMin" placeholder="Min Price">
+        </div>
+        <div class="col-6">
+            <input type="number" class="form-control" formControlName="priceMax" placeholder="Max Price">
+        </div>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <label class="form-label">Bedrooms</label>
+        <div class="bedroom-filter">
+        <button class="btn btn-outline-secondary btn-sm filter-btn active">Any</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">1+</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">2+</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">3+</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">4+</button>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <label class="form-label">Bathrooms</label>
+        <div class="bathroom-filter">
+        <button class="btn btn-outline-secondary btn-sm filter-btn active">Any</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">1+</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">2+</button>
+        <button class="btn btn-outline-secondary btn-sm filter-btn">3+</button>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <label class="form-label">Location</label>
+        <input type="text" class="form-control" placeholder="Enter city or neighborhood">
+    </div>
+
+    <div class="filter-section">
+        <label class="form-label">Features</label>
+        <div class="features-filter">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="garage">
+            <label class="form-check-label" for="garage">Garage</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="pool">
+            <label class="form-check-label" for="pool">Swimming Pool</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="balcony">
+            <label class="form-check-label" for="balcony">Balcony</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="garden">
+            <label class="form-check-label" for="garden">Garden</label>
+        </div>
+        </div>
+    </div>
+
+    <button class="btn btn-primary w-100" (click)="applyFilter()">Apply Filters</button>
+
+    </div>
+
+    <app-featured-properties></app-featured-properties>
+
+</div>
