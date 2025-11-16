@@ -3,13 +3,11 @@ import { PropertiesHeaderComponent } from "../properties-header/properties-heade
 import { PropertiesGridComponent } from "../properties-grid/properties-grid.component";
 import { PropertiesListComponent } from "../properties-list/properties-list.component";
 import { PaginationComponent } from "../pagination/pagination.component";
-import { PropertiesSidebarComponent } from "../properties-sidebar/properties-sidebar.component";
 import { RoomListParams } from '../../models/room-list-params';
-import { RoomFormComponent } from "../room-form/room-form.component";
 
 @Component({
   selector: 'app-section',
-  imports: [PropertiesHeaderComponent, PropertiesGridComponent, PropertiesListComponent, PaginationComponent, PropertiesSidebarComponent, RoomFormComponent],
+  imports: [PropertiesHeaderComponent, PropertiesGridComponent, PropertiesListComponent, PaginationComponent],
   templateUrl: './section.component.html',
   styleUrl: './section.component.css'
 })
