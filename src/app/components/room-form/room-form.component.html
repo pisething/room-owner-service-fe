@@ -1,0 +1,339 @@
+<form class="properties-sidebar" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="filter-widget">
+    <h5 class="filter-title">{{ mode() === 'create' ? 'Create Room' : 'Update Room' }}</h5>
+
+    <!-- Audit / ID (disabled display) -->
+    <div class="filter-section">
+      <div class="row g-2">
+        <div class="col-12 col-md-3">
+          <label class="form-label">ID</label>
+          <input class="form-control" formControlName="id" readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Created At</label>
+          <input class="form-control" formControlName="createdAt" readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Updated At</label>
+          <input class="form-control" formControlName="updatedAt" readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Created By</label>
+          <input class="form-control" formControlName="createdBy" readonly>
+        </div>
+        <div class="col-12 col-md-3 mt-2">
+          <label class="form-label">Updated By</label>
+          <input class="form-control" formControlName="updatedBy" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- Basic -->
+    <div class="filter-section">
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Owner ID *</label>
+          <input class="form-control" formControlName="ownerId" placeholder="owner id">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Name *</label>
+          <input class="form-control" formControlName="name" placeholder="Room name">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          <textarea rows="3" class="form-control" formControlName="description" placeholder="Description"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price & Types -->
+    <div class="filter-section">
+      <div class="row g-2">
+        <div class="col-6 col-md-3">
+          <label class="form-label">Price</label>
+          <input type="number" class="form-control" formControlName="price" placeholder="0">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Currency *</label>
+          <select class="form-select" formControlName="currencyCode">
+            @for (c of currencies; track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Room Type *</label>
+          <select class="form-select" formControlName="roomType">
+            <option value="">-- Select --</option>
+            @for (t of roomTypes; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Property Type *</label>
+          <select class="form-select" formControlName="propertyType">
+            <option value="">-- Select --</option>
+            @for (t of propertyTypes; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <div class="col-6 col-md-3">
+          <label class="form-label">Floor</label>
+          <input type="number" class="form-control" formControlName="floor">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Room Size (m²)</label>
+          <input type="number" class="form-control" formControlName="roomSize" step="0.1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="filter-section" formGroupName="address">
+      <label class="form-label">Address</label>
+
+      <div class="row g-2 align-items-end">
+        <!-- Province -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label">Province</label>
+          <select class="form-select"
+                  formControlName="provinceCode">
+            <option value="">-- Province --</option>
+            @for (p of provinces; track p.code) {
+              <option [value]="p.code">{{ p.nameEn }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- District -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label">District</label>
+          <select class="form-select"
+                  formControlName="districtCode">
+            <option value="">-- District --</option>
+            @for (d of districts; track d.code) {
+              <option [value]="d.code">{{ d.nameEn }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Commune -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label">Commune</label>
+          <select class="form-select"
+                  formControlName="communeCode">
+            <option value="">-- Commune --</option>
+            @for (c of communes; track c.code) {
+              <option [value]="c.code">{{ c.nameEn }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Village -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label">Village</label>
+          <select class="form-select" formControlName="villageCode">
+            <option value="">-- Village --</option>
+            @for (v of villages; track v.code) {
+              <option [value]="v.code">{{ v.nameEn }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <div class="col-12 col-md-3">
+          <input class="form-control" formControlName="provinceName" placeholder="Province Name">
+        </div>
+        <div class="col-12 col-md-3">
+          <input class="form-control" formControlName="districtName" placeholder="District Name">
+        </div>
+        <div class="col-12 col-md-3">
+          <input class="form-control" formControlName="communeName" placeholder="Commune Name">
+        </div>
+        <div class="col-12 col-md-3">
+          <input class="form-control" formControlName="villageName" placeholder="Village Name">
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <div class="col-12 col-md-4">
+          <input class="form-control" formControlName="line1" placeholder="Line 1">
+        </div>
+        <div class="col-12 col-md-4">
+          <input class="form-control" formControlName="line2" placeholder="Line 2">
+        </div>
+        <div class="col-12 col-md-4">
+          <input class="form-control" formControlName="postalCode" placeholder="Postal Code">
+        </div>
+      </div>
+
+      <!-- Landmarks -->
+      <div class="mt-2" formArrayName="nearbyLandmarks">
+        <label class="form-label">Nearby Landmarks</label>
+        <div class="d-flex flex-column gap-2">
+          @for (ctrl of landmarks.controls; let i = $index; track i) {
+            <div class="input-group">
+              <input class="form-control" [formControlName]="i" placeholder="e.g., University, Mall">
+              <button class="btn btn-outline-danger" type="button" (click)="removeLandmark(i)">Remove</button>
+            </div>
+          }
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addLandmark()">+ Add Landmark</button>
+      </div>
+
+      <!-- Geo -->
+      <div class="row g-2 mt-2" formGroupName="geo">
+        <div class="col-6">
+          <input type="number" step="0.000001" class="form-control" formControlName="latitude" placeholder="Latitude">
+        </div>
+        <div class="col-6">
+          <input type="number" step="0.000001" class="form-control" formControlName="longitude" placeholder="Longitude">
+        </div>
+      </div>
+    </div>
+
+    <!-- Amenities -->
+    <div class="filter-section">
+      <label class="form-label">Amenities</label>
+      <div class="row g-2">
+        @for (a of [
+          ['hasFan','Fan'],['hasAirConditioner','Air Conditioner'],['hasParking','Parking'],
+          ['hasPrivateBathroom','Private Bathroom'],['hasBalcony','Balcony'],['hasKitchen','Kitchen'],
+          ['hasFridge','Fridge'],['hasWashingMachine','Washing Machine'],['hasTV','TV'],
+          ['hasWiFi','WiFi'],['hasElevator','Elevator']
+        ]; track a[0]) {
+          <div class="col-6 col-md-3">
+            <label class="form-check d-flex align-items-center gap-2">
+              <input class="form-check-input" type="checkbox" [formControlName]="a[0]"> {{ a[1] }}
+            </label>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="filter-section">
+      <label class="form-label">Rules</label>
+      <div class="row g-2">
+        <div class="col-6 col-md-3">
+          <input type="number" class="form-control" formControlName="maxOccupants" placeholder="Max Occupants">
+        </div>
+        <div class="col-6 col-md-3">
+          <select class="form-select" formControlName="genderPreference">
+            @for (g of genderPrefs; track g) {
+              <option [value]="g">{{ g }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-6 d-flex gap-3 align-items-center flex-wrap">
+          <label class="form-check d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" formControlName="isPetFriendly"> Pet Friendly
+          </label>
+          <label class="form-check d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" formControlName="isSmokingAllowed"> Smoking Allowed
+          </label>
+          <label class="form-check d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" formControlName="isSharedRoom"> Shared Room
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional -->
+    <div class="filter-section">
+      <div class="row g-2">
+        <div class="col-6 col-md-3">
+          <input type="number" step="0.1" class="form-control" formControlName="distanceToCenter" placeholder="Distance to Center (km)">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-check d-flex align-items-center gap-2 mt-1">
+            <input class="form-check-input" type="checkbox" formControlName="isUtilityIncluded"> Utility Included
+          </label>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-check d-flex align-items-center gap-2 mt-1">
+            <input class="form-check-input" type="checkbox" formControlName="depositRequired"> Deposit Required
+          </label>
+        </div>
+        <div class="col-6 col-md-3">
+          <input type="number" class="form-control" formControlName="depositAmount" placeholder="Deposit Amount">
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <div class="col-6 col-md-3">
+          <input type="number" class="form-control" formControlName="minStayMonths" placeholder="Min Stay (months)">
+        </div>
+        <div class="col-6 col-md-3">
+          <input class="form-control" formControlName="contactPhone" placeholder="Contact Phone *">
+        </div>
+      </div>
+    </div>
+
+    <!-- Media -->
+    <div class="filter-section">
+      <label class="form-label">Photos</label>
+      <div formArrayName="photoUrls" class="d-flex flex-column gap-2">
+        @for (ctrl of photos.controls; let i = $index; track i) {
+          <div class="input-group">
+            <input class="form-control" [formControlName]="i" placeholder="https://...">
+            <button type="button" class="btn btn-outline-danger" (click)="removePhoto(i)">Remove</button>
+          </div>
+        }
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addPhoto()">+ Add Photo</button>
+
+      <div class="row g-2 mt-2">
+        <div class="col-8">
+          <input class="form-control" formControlName="videoUrl" placeholder="Video URL">
+        </div>
+        <div class="col-4 d-flex align-items-center">
+          <label class="form-check d-flex align-items-center gap-2 mt-1">
+            <input class="form-check-input" type="checkbox" formControlName="verifiedListing"> Verified Listing
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Availability -->
+    <div class="filter-section">
+      <div class="row g-2">
+        <div class="col-6 col-md-3">
+          <label class="form-label">Status *</label>
+          <select class="form-select" formControlName="status">
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-6 col-md-4">
+          <label class="form-label">Available From</label>
+          <input type="datetime-local" class="form-control" formControlName="availableFrom">
+        </div>
+        <div class="col-6 col-md-4">
+          <label class="form-label">Available To</label>
+          <input type="datetime-local" class="form-control" formControlName="availableTo">
+        </div>
+      </div>
+    </div>
+
+    <!-- Extra Attributes (JSON) -->
+    <div class="filter-section">
+      <label class="form-label">Extra Attributes (JSON)</label>
+      <textarea rows="4" class="form-control" formControlName="extraAttributesText" placeholder='{"key":"value"}'></textarea>
+      <small class="text-muted">Parsed into <code>extraAttributes</code> on submit.</small>
+    </div>
+
+    <div class="d-grid gap-2">
+      <button type="submit" class="btn btn-primary">
+        {{ mode() === 'create' ? 'Create Room' : 'Update Room' }}
+      </button>
+    </div>
+  </div>
+</form>
