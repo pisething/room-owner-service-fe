@@ -1,0 +1,13 @@
+<div class="container py-3">
+  <h3 class="mb-3">Update Room</h3>
+
+  @if (room()) {
+    <app-room-form
+      [mode]="'update'"
+      [value]="room()"
+      (update)="onUpdate($event)">
+    </app-room-form>
+  } @else {
+    <div>Loading...</div>
+  }
+</div>

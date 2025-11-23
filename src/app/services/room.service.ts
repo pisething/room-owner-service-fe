@@ -15,17 +15,27 @@ export class RoomService {
   // api_url
   // request param
   private http = inject(HttpClient);
-  private base = `${environment.apiUrl}`;
+  private base = `${environment.apiUrl}/api/rooms`;
 
   ///room/search/pagination
 
   constructor() { }
 
   list(params?: RoomListParams ) : Observable<Page<Room>>{
-    return this.http.get<Page<Room>>(this.base + "/api/rooms/search/pagination?size=10", {params: buildParams(params)});
+    return this.http.get<Page<Room>>(this.base, {params: buildParams(params)});
   }
 
   create(body: any) : Observable<Room>{
-    return this.http.post<Room>(this.base + "/api/rooms", body);
+    return this.http.post<Room>(this.base, body);
+  }
+
+   /** PATCH /rooms/{id} */
+  update(id: string, body: Room): Observable<Room> {
+    return this.http.patch<Room>(`${this.base}/${id}`, body);
+  }
+
+   /** GET /rooms/{id} */
+  getById(id: string): Observable<Room> {
+    return this.http.get<Room>(`${this.base}/${id}`);
   }
 }
