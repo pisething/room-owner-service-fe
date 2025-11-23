@@ -1,0 +1,155 @@
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Room Detail</h3>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="goBack()">Back</button>
+      <button class="btn btn-primary" (click)="edit()">Edit</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div>Loading...</div>
+  } @else {
+    @if (error()) {
+      <div class="alert alert-danger">{{ error() }}</div>
+    } @else {
+      @if (room(); as r) {
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title mb-3">{{ r.name }}</h4>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <h6>Basic</h6>
+                <div><strong>ID:</strong> {{ r.id }}</div>
+                <div><strong>Owner ID:</strong> {{ r.ownerId }}</div>
+                <div><strong>Description:</strong> {{ r.description || '—' }}</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <h6>Price</h6>
+                <div><strong>Price:</strong> {{ r.price ?? '—' }}</div>
+                <div><strong>Currency:</strong> {{ r.currencyCode }}</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <h6>Property</h6>
+                <div><strong>Floor:</strong> {{ r.floor ?? '—' }}</div>
+                <div><strong>Size (m²):</strong> {{ r.roomSize ?? '—' }}</div>
+                <div><strong>Room Type:</strong> {{ r.roomType }}</div>
+                <div><strong>Property Type:</strong> {{ r.propertyType }}</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <h6>Availability</h6>
+                <div><strong>Status:</strong> {{ r.status }}</div>
+                <div><strong>Available From:</strong> {{ r.availableFrom || '—' }}</div>
+                <div><strong>Available To:</strong> {{ r.availableTo || '—' }}</div>
+              </div>
+
+              <div class="col-12">
+                <h6>Address</h6>
+                <div class="row g-2">
+                  <div class="col-6 col-md-3"><strong>Province Code:</strong> {{ r.address.provinceCode || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>District Code:</strong> {{ r.address.districtCode || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Commune Code:</strong> {{ r.address.communeCode || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Village Code:</strong> {{ r.address.villageCode || '—' }}</div>
+
+                  <div class="col-6 col-md-3"><strong>Province:</strong> {{ r.address.provinceName || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>District:</strong> {{ r.address.districtName || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Commune:</strong> {{ r.address.communeName || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Village:</strong> {{ r.address.villageName || '—' }}</div>
+
+                  <div class="col-12"><strong>Line 1:</strong> {{ r.address.line1 || '—' }}</div>
+                  <div class="col-12"><strong>Line 2:</strong> {{ r.address.line2 || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Postal Code:</strong> {{ r.address.postalCode || '—' }}</div>
+
+                  @if (r.address.nearbyLandmarks?.length) {
+                    <div class="col-12">
+                      <strong>Nearby Landmarks:</strong>
+                      <ul class="mb-0">
+                        @for (lm of r.address!.nearbyLandmarks!; track lm) {
+                          <li>{{ lm }}</li>
+                        }
+                      </ul>
+                    </div>
+                  }
+
+                  <div class="col-12 col-md-6"><strong>Latitude:</strong> {{ r.address.geo?.latitude ?? '—' }}</div>
+                  <div class="col-12 col-md-6"><strong>Longitude:</strong> {{ r.address.geo?.longitude ?? '—' }}</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h6>Amenities</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (a of amenities; track a.key) {
+                    <span
+                      class="badge"
+                      [class.text-bg-success]="hasAmenity(r, a.key)"
+                      [class.text-bg-secondary]="!hasAmenity(r, a.key)"
+                    >
+                      {{ a.label }}: {{ hasAmenity(r, a.key) ? 'Yes' : 'No' }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h6>Rules</h6>
+                <div class="row g-2">
+                  <div class="col-6 col-md-3"><strong>Max Occupants:</strong> {{ r.maxOccupants ?? '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Gender Preference:</strong> {{ r.genderPreference || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Pet Friendly:</strong> {{ r.isPetFriendly ? 'Yes' : 'No' }}</div>
+                  <div class="col-6 col-md-3"><strong>Smoking Allowed:</strong> {{ r.isSmokingAllowed ? 'Yes' : 'No' }}</div>
+                  <div class="col-6 col-md-3"><strong>Shared Room:</strong> {{ r.isSharedRoom ? 'Yes' : 'No' }}</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h6>Media</h6>
+
+                @if (r.photoUrls?.length) {
+                  <div class="d-flex flex-column gap-2">
+                    @for (u of r.photoUrls!; track u) {
+                      <div><a [href]="u" target="_blank" rel="noopener">{{ u }}</a></div>
+                    }
+                  </div>
+                }
+
+                <div class="row g-2 mt-2">
+                  <div class="col-8">
+                    <strong>Video URL:</strong>
+                    @if (r.videoUrl) {
+                      <a [href]="r.videoUrl!" target="_blank" rel="noopener">{{ r.videoUrl }}</a>
+                    } @else {
+                      <span>—</span>
+                    }
+                  </div>
+                  <div class="col-4"><strong>Verified:</strong> {{ r.verifiedListing ? 'Yes' : 'No' }}</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h6>Audit</h6>
+                <div class="row g-2">
+                  <div class="col-6 col-md-3"><strong>Created At:</strong> {{ r.createdAt || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Updated At:</strong> {{ r.updatedAt || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Created By:</strong> {{ r.createdBy || '—' }}</div>
+                  <div class="col-6 col-md-3"><strong>Updated By:</strong> {{ r.updatedBy || '—' }}</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h6>Extra Attributes</h6>
+                <pre class="bg-light p-2 rounded" style="white-space: pre-wrap;">{{ r.extraAttributes | json }}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="alert alert-warning">No room data.</div>
+      }
+    }
+  }
+</div>

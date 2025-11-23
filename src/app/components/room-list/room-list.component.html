@@ -1,0 +1,124 @@
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Rooms</h3>
+    <button class="btn btn-primary" (click)="createNew()">+ Create New</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Name</label>
+          <input
+            class="form-control"
+            #nameEl
+            [value]="nameQuery()"
+            (input)="nameQuery.set(nameEl.value)"
+            placeholder="Search by name..."
+          />
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Status</label>
+          <select
+            class="form-select"
+            #statusEl
+            [value]="status()"
+            (change)="onStatusChange(statusEl.value)"
+          >
+            <option value="">All</option>
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="RENTED">RENTED</option>
+            <option value="HIDDEN">HIDDEN</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-5 d-flex gap-2">
+          <button class="btn btn-outline-primary" (click)="applyFilters()">Apply</button>
+          <button class="btn btn-outline-secondary" (click)="clearFilters()">Clear</button>
+
+          <div class="ms-auto d-flex align-items-center gap-2">
+            <label class="form-label m-0">Rows</label>
+            <select
+              class="form-select"
+              style="width: auto"
+              #sizeEl
+              [value]="pageSize()"
+              (change)="changePageSize(+sizeEl.value)"
+            >
+              <option>5</option>
+              <option>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div>Loading...</div>
+  } @else {
+    @if (error()) {
+      <div class="alert alert-danger">{{ error() }}</div>
+    } @else {
+      @if (page(); as p) {
+        @if (p.content.length) {
+          <div class="table-responsive">
+            <table class="table table-striped align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 44px;">#</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Price</th>
+                  <th>Currency</th>
+                  <th>Type</th>
+                  <th>Property</th>
+                  <th style="width: 220px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of p.content; track r.id) {
+                  <tr>
+                    <td>{{ ($index + 1) + (p.page * p.size) }}</td>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.status }}</td>
+                    <td>{{ r.price ?? '—' }}</td>
+                    <td>{{ r.currencyCode }}</td>
+                    <td>{{ r.roomType }}</td>
+                    <td>{{ r.propertyType }}</td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary" (click)="view(r)">View</button>
+                        <button class="btn btn-outline-primary" (click)="edit(r)">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              Page <strong>{{ p.page + 1 }}</strong> of <strong>{{ p.totalPage }}</strong>
+              &nbsp;|&nbsp; Total: <strong>{{ p.totalElements }}</strong>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary btn-sm" (click)="first()" [disabled]="p.first">« First</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="prev()"  [disabled]="p.first">‹ Prev</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="next()"  [disabled]="p.last">Next ›</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="last()"  [disabled]="p.last">Last »</button>
+            </div>
+          </div>
+        } @else {
+          <div class="alert alert-info">No rooms found.</div>
+        }
+      }
+    }
+  }
+</div>
