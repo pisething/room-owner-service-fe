@@ -109,10 +109,10 @@
               &nbsp;|&nbsp; Total: <strong>{{ p.totalElements }}</strong>
             </div>
             <div class="btn-group">
-              <button class="btn btn-outline-secondary btn-sm" (click)="first()" [disabled]="p.first">« First</button>
-              <button class="btn btn-outline-secondary btn-sm" (click)="prev()"  [disabled]="p.first">‹ Prev</button>
-              <button class="btn btn-outline-secondary btn-sm" (click)="next()"  [disabled]="p.last">Next ›</button>
-              <button class="btn btn-outline-secondary btn-sm" (click)="last()"  [disabled]="p.last">Last »</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="first()" [disabled]="p.page === 0">« First</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="prev()"  [disabled]="p.page === 0">‹ Prev</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="next()"  [disabled]="p.page >= p.totalPage - 1">Next ›</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="last()"  [disabled]="p.page >= p.totalPage - 1">Last »</button>
             </div>
           </div>
         } @else {

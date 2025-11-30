@@ -12,6 +12,7 @@ import { AddressService, AdminAreaResponse } from '../../services/address.servic
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { startWith, switchMap, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 type RoomType = 'SINGLE' | 'DOUBLE' | 'STUDIO';
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL';
@@ -28,6 +29,7 @@ export class RoomFormComponent {
   private fb = inject(FormBuilder);
   private addressService = inject(AddressService);
   private destroyRef = inject(DestroyRef); // good to have
+  private router = inject(Router);
 
   // Signals (Angular 19)
   mode = input<'create' | 'update'>('create');
@@ -48,6 +50,7 @@ export class RoomFormComponent {
   communes: Array<{ code: string; nameEn: string }> = [];
   //villages: Array<{ code: string; nameEn: string }> = [];
   villages: AdminAreaResponse[] = [];
+  submitted = false;
 
   // --- Reactive Form (ALL fields) ---
   form: FormGroup = this.fb.group({
@@ -58,7 +61,7 @@ export class RoomFormComponent {
     name: ['', Validators.required],
     description: [''],
 
-    price: [null],
+    price: [null, [Validators.required, Validators.min(0.01)]],
     currencyCode: ['USD', Validators.required],
 
     floor: [null],
@@ -174,17 +177,24 @@ export class RoomFormComponent {
   provinceCtrl.valueChanges
     .pipe(
       startWith(provinceCtrl.value ?? ''),
-      tap(() => {
+      tap((code) => {
         districtCtrl.enable();
         communeCtrl.disable();
         villageCtrl.disable();
 
-        districtCtrl.setValue('');
-        communeCtrl.setValue('');
-        villageCtrl.setValue('');
+        districtCtrl.setValue('',{ emitEvent: false });
+        communeCtrl.setValue('', { emitEvent: false });
+        villageCtrl.setValue('', { emitEvent: false });
 
         this.communes = [];
         this.villages = [];
+
+        // set provinceName from provinces list
+        const selected = this.provinces.find(p => p.code === code);
+        this.addr.patchValue(
+          { provinceName: selected?.nameEn ?? '' },
+          { emitEvent: false }
+        );
       }),
       switchMap(code => code ? this.addressService.getDistricts(code) : of([])),
       takeUntilDestroyed(this.destroyRef)
@@ -195,14 +205,22 @@ export class RoomFormComponent {
   districtCtrl.valueChanges
     .pipe(
       startWith(districtCtrl.value ?? ''),
-      tap(() => {
+      tap((code) => {
         communeCtrl.enable();
         villageCtrl.disable();
 
-        communeCtrl.setValue('');
-        villageCtrl.setValue('');
+        communeCtrl.setValue('', { emitEvent: false });
+        villageCtrl.setValue('', { emitEvent: false });
 
         this.villages = [];
+
+        // set districtName from current districts list
+        const selected = this.districts.find(d => d.code === code);
+        this.addr.patchValue(
+          { districtName: selected?.nameEn ?? '' },
+          { emitEvent: false }
+        );
+
       }),
       switchMap(code => code ? this.addressService.getCommunes(code) : of([])),
       takeUntilDestroyed(this.destroyRef)
@@ -213,16 +231,40 @@ export class RoomFormComponent {
   communeCtrl.valueChanges
     .pipe(
       startWith(communeCtrl.value ?? ''),
-      tap(() => {
+      tap((code) => {
         villageCtrl.enable();
-        villageCtrl.setValue('');
+        villageCtrl.setValue('', { emitEvent: false });
+
+        // set communeName from current communes list
+        const selected = this.communes.find(c => c.code === code);
+        this.addr.patchValue(
+          { communeName: selected?.nameEn ?? '' },
+          { emitEvent: false }
+        );
+
       }),
       switchMap(code => code ? this.addressService.getVillages(code) : of([])),
       takeUntilDestroyed(this.destroyRef)
     )
     .subscribe(list => this.villages = list);
 
-  // 6) patch if update mode
+  // 6) village → set villageName
+  villageCtrl.valueChanges
+    .pipe(
+      startWith(villageCtrl.value ?? ''),
+      tap(code => {
+        const selected = this.villages.find(v => v.code === code);
+        this.addr.patchValue(
+          { villageName: selected?.nameEn ?? '' },
+          { emitEvent: false }
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    )
+    .subscribe();    
+  
+
+  // 7) patch if update mode
   if (this.mode() === 'update' && this.value()) {
     this.patchAll(this.value()!);
   }
@@ -327,8 +369,18 @@ export class RoomFormComponent {
     if (req) { this.form.get('depositAmount')?.enable(); }
   }
 
+  isInvalid(path: string): boolean {
+    const ctrl = this.form.get(path);
+    return !!ctrl && ctrl.invalid && (ctrl.touched || this.submitted);
+  }
+
+  goBack(){
+    this.router.navigate(['/rooms']);
+  }
+
   // ---------- Submit ----------
   submit() {
+    this.submitted = true;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
