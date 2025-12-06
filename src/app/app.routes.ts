@@ -5,6 +5,7 @@ import { RoomCreateComponent } from './components/room-create/room-create.compon
 import { RoomDetailComponent } from './components/room-detail/room-detail.component';
 import { RoomEditComponent } from './components/room-edit/room-edit.component';
 import { RoomListComponent } from './components/room-list/room-list.component';
+import { RoomUploadComponent } from './components/room-upload/room-upload.component';
 
 export const routes: Routes = [
     {
@@ -12,6 +13,7 @@ export const routes: Routes = [
     },
     { path: 'rooms', component: RoomListComponent },
     { path: 'rooms/new', component: RoomCreateComponent },
+    { path: 'rooms/upload', component: RoomUploadComponent },
     { path: 'rooms/:id', component: RoomDetailComponent },
     { path: 'rooms/:id/edit', component: RoomEditComponent },
     {

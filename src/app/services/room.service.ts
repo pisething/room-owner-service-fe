@@ -6,6 +6,7 @@ import { Page } from '../models/page';
 import { Room } from '../models/room';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { buildParams } from '../core/http/utils';
+import { UploadSummary } from '../models/upload-summary';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +38,18 @@ export class RoomService {
    /** GET /rooms/{id} */
   getById(id: string): Observable<Room> {
     return this.http.get<Room>(`${this.base}/${id}`);
+  }
+
+  uploadExcel(file: File, dryRun: boolean): Observable<UploadSummary> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const params = new HttpParams().set('dryRun', String(dryRun));
+
+    return this.http.post<UploadSummary>(
+      `${this.base}/upload-excel`,
+      formData,
+      { params }
+    );
   }
 }
