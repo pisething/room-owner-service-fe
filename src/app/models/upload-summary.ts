@@ -1,6 +1,6 @@
 // src/app/models/upload-summary.ts
 export interface RowError {
-  rowIndex: number;
+  lineNumber: number;
   message: string;
   errorType?: 'VALIDATION' | 'DUPLICATE' | 'OTHER' | string;
 }

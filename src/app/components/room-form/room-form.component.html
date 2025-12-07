@@ -36,9 +36,13 @@
           formControlName="ownerId" 
           placeholder="owner id"
           [ngClass]="{ 'is-invalid': isInvalid('ownerId') }">
-          <div class="invalid-feedback" *ngIf="isInvalid('ownerId')">
-            Owner ID is required.
+          
+          <div class="invalid-feedback">
+            @if (isInvalid('ownerId')) {
+              Owner ID is required.
+            }
           </div>
+
         </div>
         <div class="col-12 col-md-4">
           <label class="form-label">Name *</label>

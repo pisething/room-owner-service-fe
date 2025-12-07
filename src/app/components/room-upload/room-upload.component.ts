@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 import { UploadSummary } from '../../models/upload-summary';
 import { RoomService } from '../../services/room.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-room-upload',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './room-upload.component.html',
   styleUrl: './room-upload.component.css'
 })
