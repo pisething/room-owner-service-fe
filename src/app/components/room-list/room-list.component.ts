@@ -123,4 +123,8 @@ export class RoomListComponent {
     this.pageIndex.set(0);
     this.load();
   }
+
+  goUpload(): void {
+    this.router.navigate(['/rooms', 'upload']);
+  }
 }
