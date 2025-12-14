@@ -36,8 +36,10 @@
           formControlName="ownerId" 
           placeholder="owner id"
           [ngClass]="{ 'is-invalid': isInvalid('ownerId') }">
-          <div class="invalid-feedback" *ngIf="isInvalid('ownerId')">
-            Owner ID is required.
+          <div class="invalid-feedback">
+            @if (isInvalid('ownerId')) {
+              Owner ID is required.
+            }
           </div>
         </div>
         <div class="col-12 col-md-4">
@@ -46,8 +48,10 @@
           formControlName="name" 
           placeholder="Room name"
           [ngClass]="{ 'is-invalid': isInvalid('name') }">
-          <div class="invalid-feedback" *ngIf="isInvalid('name')">
-            Room Name is required.
+          <div class="invalid-feedback">
+            @if (isInvalid('name')) {
+              Room Name is required.
+            }
           </div>
         </div>
         <div class="col-12">
@@ -67,14 +71,20 @@
           formControlName="price" 
           placeholder="0"
           [ngClass]="{ 'is-invalid': isInvalid('price') }">
-          <div class="invalid-feedback d-block" *ngIf="isInvalid('price')">
-            <span *ngIf="form.get('price')?.hasError('required')">
-              Price is required.
-            </span>
-            <span *ngIf="form.get('price')?.hasError('min')">
-              Price must be greater than 0.
-            </span>
+
+          <div class="invalid-feedback d-block">
+            @if (isInvalid('price')) {
+
+              @if (form.get('price')?.hasError('required')) {
+                <span>Price is required.</span>
+              }
+
+              @if (form.get('price')?.hasError('min')) {
+                <span>Price must be greater than 0.</span>
+              }
+            }
           </div>
+
         </div>
         <div class="col-6 col-md-3">
           <label class="form-label">Currency *</label>
