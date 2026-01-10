@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { startWith, switchMap, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { RoomMediaApiService } from '../../services/room-media-api.service';
 
 type RoomType = 'SINGLE' | 'DOUBLE' | 'STUDIO';
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'CONDO' | 'TOWNHOUSE' | 'COMMERCIAL';
@@ -30,6 +31,8 @@ export class RoomFormComponent {
   private addressService = inject(AddressService);
   private destroyRef = inject(DestroyRef); // good to have
   private router = inject(Router);
+  private mediaApi = inject(RoomMediaApiService);
+
 
   // Signals (Angular 19)
   mode = input<'create' | 'update'>('create');
@@ -43,6 +46,17 @@ export class RoomFormComponent {
   propertyTypes: PropertyType[] = ['APARTMENT', 'HOUSE', 'CONDO', 'TOWNHOUSE', 'COMMERCIAL'];
   genderPrefs: GenderPreference[] = ['MALE', 'FEMALE', 'NO_PREFERENCE'];
   statuses: RoomStatus[] = ['AVAILABLE', 'RENTED', 'HIDDEN'];
+
+  // ---------- Image Upload State ----------
+uploading = false;
+uploadError: string | null = null;
+
+selectedFiles: File[] = [];
+selectedPreviews: string[] = [];
+
+// URLs returned from backend (MinIO / S3)
+photoUrlsView: string[] = [];
+
 
   // address reference lists (bound in template with @for)
   provinces: Array<{ code: string; nameEn: string }> = [];
@@ -145,7 +159,7 @@ export class RoomFormComponent {
   get addr(): FormGroup { return this.form.get('address') as FormGroup; }
   get geo(): FormGroup { return this.addr.get('geo') as FormGroup; }
   get landmarks(): FormArray<FormControl<string>> { return this.addr.get('nearbyLandmarks') as FormArray<FormControl<string>>; }
-  get photos(): FormArray<FormControl<string>> { return this.form.get('photoUrls') as FormArray<FormControl<string>>; }
+  //get photos(): FormArray<FormControl<string>> { return this.form.get('photoUrls') as FormArray<FormControl<string>>; }
 
   // ---------- lifecycle ----------
   ngOnInit() {
@@ -267,6 +281,7 @@ export class RoomFormComponent {
   // 7) patch if update mode
   if (this.mode() === 'update' && this.value()) {
     this.patchAll(this.value()!);
+    this.photoUrlsView = (this.value()!.photoUrls ?? []).slice();
   }
 }
 
@@ -277,15 +292,12 @@ export class RoomFormComponent {
   }
   removeLandmark(i: number) { this.landmarks.removeAt(i); }
 
-  addPhoto(url = '') {
-    this.photos.push(this.fb.nonNullable.control<string>(url));
-  }
-  removePhoto(i: number) { this.photos.removeAt(i); }
+
 
   // ---------- Patch for update (no awaits) ----------
   patchAll(room: any) {
     // arrays first
-    (room.photoUrls ?? []).forEach((u: string) => this.addPhoto(u));
+    //(room.photoUrls ?? []).forEach((u: string) => this.addPhoto(u));
     (room.address?.nearbyLandmarks ?? []).forEach((l: string) => this.addLandmark(l));
 
     // set address codes — valueChanges streams above will fetch lists reactively
@@ -457,7 +469,7 @@ export class RoomFormComponent {
       minStayMonths: raw.minStayMonths ?? null,
       contactPhone: raw.contactPhone,
 
-      photoUrls: (raw.photoUrls ?? []).filter((s: string) => !!s?.trim()),
+      //photoUrls: (raw.photoUrls ?? []).filter((s: string) => !!s?.trim()),
       videoUrl: raw.videoUrl || null,
       verifiedListing: !!raw.verifiedListing,
 
@@ -480,4 +492,120 @@ export class RoomFormComponent {
     }
     console.log(body);
   }
+
+  get roomId(): string | null {
+    const v = this.value();
+    if (v?.id) {
+      return String(v.id);
+    }
+
+    const raw = this.form.getRawValue();
+    return raw?.id ? String(raw.id) : null;
+  }
+
+
+  onFilesSelected(event: Event) {
+  this.uploadError = null;
+
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+
+  this.clearPreviews();
+
+  const allowed = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  const maxBytes = 5_000_000;
+
+  const valid: File[] = [];
+  for (const f of files) {
+    if (!allowed.has(f.type)) {
+      this.uploadError = 'Only JPG, PNG, WEBP are allowed.';
+      continue;
+    }
+    if (f.size > maxBytes) {
+      this.uploadError = 'File too large (max 5MB).';
+      continue;
+    }
+    valid.push(f);
+  }
+
+  this.selectedFiles = valid;
+  this.selectedPreviews = valid.map(f => URL.createObjectURL(f));
+}
+
+uploadSelected() {
+  const roomId = this.value()?.id ?? this.form.getRawValue()?.id;
+  if (!roomId) {
+    this.uploadError = 'Create the room first, then upload photos.';
+    return;
+  }
+  if (this.selectedFiles.length === 0) {
+    this.uploadError = 'Please select at least one image.';
+    return;
+  }
+
+  this.uploading = true;
+  this.uploadError = null;
+
+  this.mediaApi.uploadPhotos(roomId, this.selectedFiles)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (resp) => {
+        this.photoUrlsView = (resp.photoUrls ?? []).slice();
+        this.clearSelectedFiles();
+        this.uploading = false;
+      },
+      error: (err) => {
+        this.uploadError = err?.error?.detail ?? err?.message ?? 'Upload failed.';
+        this.uploading = false;
+      }
+    });
+}
+
+deletePhotoByUrl(url: string) {
+  const roomId = this.value()?.id ?? this.form.getRawValue()?.id;
+  if (!roomId) {
+    return;
+  }
+
+  const objectKey = this.extractObjectKey(url);
+  if (!objectKey) {
+    this.uploadError = 'Cannot delete photo.';
+    return;
+  }
+
+  this.uploading = true;
+  this.uploadError = null;
+
+  this.mediaApi.deletePhoto(roomId, objectKey)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (resp) => {
+        this.photoUrlsView = (resp.photoUrls ?? []).slice();
+        this.uploading = false;
+      },
+      error: (err) => {
+        this.uploadError = err?.error?.detail ?? err?.message ?? 'Delete failed.';
+        this.uploading = false;
+      }
+    });
+}
+
+private extractObjectKey(url: string): string | null {
+  const marker = '/room-media/';
+  const idx = url.indexOf(marker);
+  return idx === -1 ? null : url.substring(idx + marker.length);
+}
+
+private clearSelectedFiles() {
+  this.clearPreviews();
+  this.selectedFiles = [];
+}
+
+private clearPreviews() {
+  for (const p of this.selectedPreviews) {
+    try { URL.revokeObjectURL(p); } catch {}
+  }
+  this.selectedPreviews = [];
+}
+
 }
